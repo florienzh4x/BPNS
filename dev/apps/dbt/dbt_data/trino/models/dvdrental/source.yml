@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: dvdrental
+    database: minio
+    schema: dvdrental
+    tables:
+      - name: staff
+      - name: film

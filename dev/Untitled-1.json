@@ -1,0 +1,118 @@
+{
+    "public": {
+        "actor": {
+            "actor_id": "INTEGER",
+            "first_name": "VARCHAR",
+            "last_name": "VARCHAR",
+            "last_update": "TIMESTAMP"
+        },
+        "store": {
+            "store_id": "INTEGER",
+            "manager_staff_id": "SMALLINT",
+            "address_id": "SMALLINT",
+            "last_update": "TIMESTAMP"
+        },
+        "address": {
+            "address_id": "INTEGER",
+            "address": "VARCHAR",
+            "address2": "VARCHAR",
+            "district": "VARCHAR",
+            "city_id": "SMALLINT",
+            "postal_code": "VARCHAR",
+            "phone": "VARCHAR",
+            "update_at": "TIMESTAMP"
+        },
+        "category": {
+            "category_id": "INTEGER",
+            "name": "VARCHAR",
+            "last_update": "TIMESTAMP"
+        },
+        "city": {
+            "city_id": "INTEGER",
+            "city": "VARCHAR",
+            "country_id": "SMALLINT"
+        },
+        "country": {
+            "country_id": "INTEGER",
+            "country": "VARCHAR"
+        },
+        "customer": {
+            "customer_id": "INTEGER",
+            "store_id": "SMALLINT",
+            "first_name": "VARCHAR",
+            "last_name": "VARCHAR",
+            "email": "VARCHAR",
+            "address_id": "SMALLINT",
+            "activebool": "BOOLEAN",
+            "create_date": "DATE",
+            "last_update": "TIMESTAMP",
+            "active": "INTEGER"
+        },
+        "film_actor": {
+            "actor_id": "SMALLINT",
+            "film_id": "SMALLINT",
+            "last_update": "TIMESTAMP"
+        },
+        "film_category": {
+            "film_id": "SMALLINT",
+            "category_id": "SMALLINT",
+            "last_update": "TIMESTAMP"
+        },
+        "inventory": {
+            "inventory_id": "INTEGER",
+            "film_id": "SMALLINT",
+            "store_id": "SMALLINT",
+            "last_update": "TIMESTAMP"
+        },
+        "language": {
+            "language_id": "INTEGER",
+            "name": "CHAR",
+            "last_update": "TIMESTAMP"
+        },
+        "rental": {
+            "rental_id": "INTEGER",
+            "rental_date": "TIMESTAMP",
+            "inventory_id": "INTEGER",
+            "customer_id": "SMALLINT",
+            "return_date": "TIMESTAMP",
+            "staff_id": "SMALLINT",
+            "last_update": "TIMESTAMP"
+        },
+        "staff": {
+            "staff_id": "INTEGER",
+            "first_name": "VARCHAR",
+            "last_name": "VARCHAR",
+            "address_id": "SMALLINT",
+            "email": "VARCHAR",
+            "store_id": "SMALLINT",
+            "active": "BOOLEAN",
+            "username": "VARCHAR",
+            "password": "VARCHAR",
+            "last_update": "TIMESTAMP",
+            "picture": "BYTEA"
+        },
+        "payment": {
+            "payment_id": "INTEGER",
+            "customer_id": "SMALLINT",
+            "staff_id": "SMALLINT",
+            "rental_id": "INTEGER",
+            "amount": "NUMERIC",
+            "payment_date": "TIMESTAMP"
+        },
+        "film": {
+            "film_id": "INTEGER",
+            "title": "VARCHAR",
+            "description": "TEXT",
+            "release_year": "DOMAIN",
+            "language_id": "SMALLINT",
+            "rental_duration": "SMALLINT",
+            "rental_rate": "NUMERIC",
+            "length": "SMALLINT",
+            "replacement_cost": "NUMERIC",
+            "rating": "VARCHAR",
+            "updated_at": "TIMESTAMP",
+            "special_features": "ARRAY",
+            "fulltext": "TSVECTOR"
+        }
+    }
+}

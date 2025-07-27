@@ -1,0 +1,4 @@
+parquet to trino
+
+BLOB => VARBINARY
+VARCHAR[] => ARRAY(VARCHAR)
