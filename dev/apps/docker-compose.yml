@@ -83,7 +83,7 @@ services:
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
     volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
+      - postgres-airflow:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 10s
@@ -389,14 +389,12 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
-
 volumes:
   dvdrental-postgresql:
-  postgres-db-volume:
+  postgres-airflow:
   minio_data:
   hive_postgres_data:
   hive_metastore_data:
-  
   
 networks:
   dev-net:

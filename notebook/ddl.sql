@@ -25,7 +25,7 @@ CREATE TABLE minio.dvdrental.film (
 
 )
 WITH (
-    external_location = 's3a://landing-zones/dvdrental/public/film/2025-07-27',
+    external_location = 's3a://landing-zones/dvdrental/public/film/latest',
     format = 'PARQUET'
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE minio.dvdrental.staff (
     picture VARBINARY
 )
 WITH (
-    external_location = 's3a://landing-zones/dvdrental/public/staff/2025-07-27',
+    external_location = 's3a://landing-zones/dvdrental/public/staff/latest',
     format = 'PARQUET'
 );
 
@@ -67,6 +67,6 @@ CREATE TABLE minio.dvdrental.customer (
     deleted_at TIMESTAMP
 )
 WITH (
-    external_location = 's3a://landing-zones/dvdrental/public/customer/2025-07-27',
+    external_location = 's3a://landing-zones/dvdrental/public/customer/latest',
     format = 'PARQUET'
 );
