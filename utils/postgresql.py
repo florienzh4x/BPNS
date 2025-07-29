@@ -3,24 +3,30 @@ from sqlalchemy import create_engine, inspect
 import os
 
 class Postgresql:
-    def __init__(self, host: str, port: int, user: str, password: str, database: str, schema: str = ""):
+    def __init__(self):
         """
-        Initialize Postgresql object.
+        Initialize the Postgresql class.
 
-        :param host: host of database
-        :param port: port of database
-        :param user: username of database
-        :param password: password of database
-        :param database: name of database
-        :param schema: name of database schema, default is empty string
+        Get the database connection parameters from environment variables.
+
+        - DB_HOST
+        - DB_PORT
+        - DB_USER
+        - DB_PASSWORD
+        - DB_NAME
+        - DB_SCHEMA (optional)
+
+        Create a SQLAlchemy engine object with the connection parameters.
+
+        If DB_SCHEMA is not given, the schema will be "all". Otherwise, set self.schema to the given value.
         """
         
-        # host = os.getenv("DB_HOST", host)
-        # port = os.getenv("DB_PORT", port)
-        # user = os.getenv("DB_USER", user)
-        # password = os.getenv("DB_PASSWORD", password)
-        # database = os.getenv("DB_NAME", database)
-        # schema = os.getenv("DB_SCHEMA", schema)
+        host = os.getenv("DB_HOST", "localhost")
+        port = int(os.getenv("DB_PORT", "5432"))
+        user = os.getenv("DB_USER", "postgres")
+        password = os.getenv("DB_PASSWORD", "postgres")
+        database = os.getenv("DB_NAME", "postgres")
+        schema = os.getenv("DB_SCHEMA", None)
         
         self.engine = create_engine(f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}")
         
@@ -91,7 +97,10 @@ class Postgresql:
         
         for schema, table_list in schema_table_dict.items():
             
-            column_dict[schema] = []
+            database = os.getenv("DB_NAME", "dvdrental")
+            schema_key = (database, schema)
+            
+            column_dict[schema_key] = []
             
             for table in table_list:
                 
@@ -107,9 +116,9 @@ class Postgresql:
                         pass
                     
                 if incremental_status == 3:
-                    column_dict[schema].append({"table": table, "incremental": True})
+                    column_dict[schema_key].append({"table": table, "incremental": True})
                 else:
-                    column_dict[schema].append({"table": table, "incremental": False})
+                    column_dict[schema_key].append({"table": table, "incremental": False})
                 
         return column_dict
     
