@@ -4,3 +4,5 @@ pyarrow
 sqlalchemy
 PyMySQL
 minio
+trino
+sqlalchemy-trino
