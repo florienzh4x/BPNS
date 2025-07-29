@@ -1,20 +1,22 @@
 from .postgresql import Postgresql
+import os
 
 class Database:
-    def __init__(self,db_type: str, host: str, port: int, user: str, password: str, database: str, schema: str = ""):
+    def __init__(self):
         """
-        Initialize Database object.
+        Initialize the Database object.
 
-        :param db_type: type of database, can be "postgresql" or "mysql"
-        :param host: host of database
-        :param port: port of database
-        :param user: username of database
-        :param password: password of database
-        :param database: name of database
-        :param schema: name of database schema, default is empty string
+        Determine the database type from the environment variable DB_TYPE and
+        create an instance of the corresponding class to handle the database
+        operations.
+
+        :raises ValueError: If DB_TYPE is not set or not supported.
         """
+        
+        db_type = os.getenv("DB_TYPE", "postgresql")
+        
         if db_type == "postgresql":
-            self.impl = Postgresql(host=host, port=port, user=user, password=password, database=database, schema=schema)
+            self.impl = Postgresql()
         elif db_type == "mysql":
             pass
         
