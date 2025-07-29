@@ -1,5 +1,5 @@
 from minio import Minio
-from minio.error import ResponseError
+from minio.error import S3Error
 from minio.commonconfig import CopySource
 import os
 
@@ -59,7 +59,7 @@ class MinIO:
         try:
             self.minio_client.get_object(bucket_name, object_name)
             return True
-        except ResponseError as err:
+        except S3Error as err:
             if err.code == "NoSuchKey":
                 print("Object not found")
                 return False
@@ -83,7 +83,7 @@ class MinIO:
                 length=len(buffer.getvalue()),
                 content_type="application/vnd.apache.parquet"
             )
-        except ResponseError as err:
+        except S3Error as err:
             print(err)
             
     def copy_object(self, src_bucket, src_object, dst_bucket, dst_object):
@@ -106,7 +106,7 @@ class MinIO:
                 object_name=dst_object,
                 source=source
             )
-        except ResponseError as err:
+        except S3Error as err:
             print(err)
             
     def delete_object(self, bucket_name, object_name):
@@ -119,5 +119,5 @@ class MinIO:
 
         try:
             self.minio_client.remove_object(bucket_name, object_name)
-        except ResponseError as err:
+        except S3Error as err:
             print(err)
