@@ -1,0 +1,133 @@
+import pandas as pd
+from sqlalchemy import create_engine, inspect
+import os
+
+class MsSQL:
+    def __init__(self):
+        """
+        Initialize the MS SQL class.
+
+        Get the database connection parameters from environment variables.
+
+        - DB_HOST
+        - DB_PORT
+        - DB_USER
+        - DB_PASSWORD
+        - DB_NAME
+        - DB_SCHEMA (optional)
+
+        Create a SQLAlchemy engine object with the connection parameters.
+
+        If DB_SCHEMA is not given, the schema will be "all". Otherwise, set self.schema to the given value.
+        """
+        
+        host = os.getenv("DB_HOST", "localhost")
+        port = os.getenv("DB_PORT", "1433")
+        user = os.getenv("DB_USER", "sa")
+        password = os.getenv("DB_PASSWORD", "YourStrong!Password123")
+        database = os.getenv("DB_NAME", "master")
+        schema = os.getenv("DB_SCHEMA", None)
+        
+        self.engine = create_engine(f"mssql+pyodbc://{user}:{password}@{host}:{port}/{database}?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes")
+        
+        if schema:
+            self.schema = schema
+        else:
+            self.schema = "all"
+            
+    def get_schemas(self):
+        """
+        Get all schemas in database if self.schema is "all", otherwise return self.schema in list.
+
+        :return: list of schemas
+        """
+        
+        if self.schema == "all":
+        
+            inspector = inspect(self.engine)
+            schemas = inspector.get_schema_names()
+            filtered = [
+                item for item in schemas
+                if not (
+                    item.lower().startswith('db_') or
+                    item.lower() == 'guest' or
+                    item.lower() == 'sys' or
+                    item.lower() == 'information_schema'
+                )
+            ]
+            
+            return filtered
+        else:
+            return [self.schema]
+        
+    def get_tables(self):
+        """
+        Retrieve the names of all tables within each schema in the database.
+
+        This function inspects the database engine to gather a list of table names
+        for every schema retrieved by the `get_schemas` method. The table names
+        are organized in a dictionary where each key is a schema name and the
+        corresponding value is a list of tables within that schema.
+
+        :return: Dictionary where keys are schema names and values are lists of table names.
+        """
+
+        schema_list = self.get_schemas()
+        
+        table_name_dict = {}
+        
+        for schema in schema_list:
+        
+            inspector = inspect(self.engine)
+            tables = inspector.get_table_names(schema)
+            
+            if tables:
+                table_name_dict[schema] = tables
+            
+        return table_name_dict
+    
+    def get_load_status(self):
+        """
+        Retrieve a dictionary of schema names and their associated tables with incremental load status.
+
+        The dictionary returned by this function will have schema names as keys and lists of dictionaries as values.
+        Each dictionary within the list will contain the name of a table and a boolean indicating whether that table
+        has an incremental load implemented. The boolean value is derived from the presence of columns named
+        "updated_at", "created_at", and "deleted_at" in the table. If all three columns are present, the "incremental"
+        value in the dictionary will be True, otherwise it will be False.
+
+        :return: Dictionary where keys are schema names and values are lists of dictionaries containing the name of a
+        table and its associated incremental load status.
+        """
+        
+        schema_table_dict = self.get_tables()
+        
+        tables_dict = {}
+        
+        for schema, table_list in schema_table_dict.items():
+            
+            database = os.getenv("DB_NAME", "master")
+            schema_key = (database, schema)
+            
+            tables_dict[schema_key] = []
+            
+            if table_list:
+                for table in table_list:
+                    
+                    inspector = inspect(self.engine)
+                    columns = inspector.get_columns(table, schema)
+                    
+                    incremental_status = 0
+                    
+                    for column in columns:
+                        if column["name"] in ["updated_at", "created_at", "deleted_at"]:
+                            incremental_status += 1
+                        else:
+                            pass
+                        
+                    if incremental_status == 3:
+                        tables_dict[schema_key].append({"table": table, "incremental": True})
+                    else:
+                        tables_dict[schema_key].append({"table": table, "incremental": False})
+                
+        return tables_dict
