@@ -2,7 +2,8 @@ psycopg2-binary
 pandas
 pyarrow
 sqlalchemy
-PyMySQL
+pymysql
 minio
 trino
 sqlalchemy-trino
+pyodbc
