@@ -22,7 +22,7 @@ class Postgresql:
         """
         
         host = os.getenv("DB_HOST", "localhost")
-        port = int(os.getenv("DB_PORT", "5432"))
+        port = os.getenv("DB_PORT", "5432")
         user = os.getenv("DB_USER", "postgres")
         password = os.getenv("DB_PASSWORD", "postgres")
         database = os.getenv("DB_NAME", "postgres")
@@ -73,7 +73,8 @@ class Postgresql:
             inspector = inspect(self.engine)
             tables = inspector.get_table_names(schema)
             
-            table_name_dict[schema] = tables
+            if tables:
+                table_name_dict[schema] = tables
             
         return table_name_dict
     
@@ -93,14 +94,14 @@ class Postgresql:
         
         schema_table_dict = self.get_tables()
         
-        column_dict = {}
+        tables_dict = {}
         
         for schema, table_list in schema_table_dict.items():
             
-            database = os.getenv("DB_NAME", "dvdrental")
+            database = os.getenv("DB_NAME", "postgres")
             schema_key = (database, schema)
             
-            column_dict[schema_key] = []
+            tables_dict[schema_key] = []
             
             for table in table_list:
                 
@@ -116,20 +117,8 @@ class Postgresql:
                         pass
                     
                 if incremental_status == 3:
-                    column_dict[schema_key].append({"table": table, "incremental": True})
+                    tables_dict[schema_key].append({"table": table, "incremental": True})
                 else:
-                    column_dict[schema_key].append({"table": table, "incremental": False})
+                    tables_dict[schema_key].append({"table": table, "incremental": False})
                 
-        return column_dict
-    
-    def select_data(self, query: str):
-        """
-        Execute a SQL query and return the result as a pandas DataFrame.
-
-        :param query: SQL query to be executed
-        :return: pandas DataFrame containing the result of the query
-        """
-
-        df = pd.read_sql(query, self.engine)
-        
-        return df
+        return tables_dict
