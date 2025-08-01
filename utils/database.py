@@ -1,4 +1,6 @@
 from .postgresql import Postgresql
+from .mysql import MySQL
+from .mssql import MsSQL
 import os
 
 class Database:
@@ -13,12 +15,16 @@ class Database:
         :raises ValueError: If DB_TYPE is not set or not supported.
         """
         
-        db_type = os.getenv("DB_TYPE", "postgresql")
+        db_type = os.getenv("DB_TYPE", "postgresql").lower()
         
         if db_type == "postgresql":
             self.impl = Postgresql()
-        elif db_type == "mysql":
-            pass
+        elif db_type == "mysql" or db_type == "mariadb":
+            self.impl = MySQL()
+        elif db_type == "mssql":
+            self.impl = MsSQL()
+        else:
+            raise ValueError(f"Unsupported database type: {db_type}")
         
     def clean_connection(self):
         """
