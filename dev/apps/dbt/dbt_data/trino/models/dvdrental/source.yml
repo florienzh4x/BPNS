@@ -7,3 +7,4 @@ sources:
     tables:
       - name: staff
       - name: film
+      - name: actor
