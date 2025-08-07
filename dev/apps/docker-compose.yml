@@ -60,6 +60,18 @@ services:
     networks:
       - dev-net
 
+  iceberg-metastore-postgres:
+    image: postgres:17
+    container_name: iceberg-postgres-hive
+    environment:
+      POSTGRES_DB: metastore
+      POSTGRES_USER: iceberg
+      POSTGRES_PASSWORD: icebergpassword
+    volumes:
+      - iceberg_hive_postgres_data:/var/lib/postgresql/data
+    networks:
+      - dev-net  
+
   postgresql_data:
     image: postgres:17
     container_name: postgres-data
@@ -117,8 +129,10 @@ services:
         - HADOOP_AWS_JAR_VERSION=3.3.4
         - MINIO_JAR_VERSION=8.5.17
         - AWS_BUNDLE_JAR_VERSION=1.12.782
-    image: hive-image
+        - POSTGRESQL_JAR_VERSION=42.7.5
+    image: hive-image:4.0.1
     container_name: hive-metastore
+    hostname: hive-metastore
     environment:
       SERVICE_NAME: metastore
       HIVE_METASTORE_USER: hive
@@ -132,7 +146,41 @@ services:
       - "9083:9083"
     volumes:
       - hive_metastore_data:/opt/hive/data
-      - "./hive/core-site.xml:/opt/hive/conf/core-site.xml"
+      - "./hive/hive-site.xml:/opt/hive/conf/core-site.xml"
+    networks:
+      - dev-net
+
+  iceberg-hive-metastore:
+    build:
+      context: ./hive
+      dockerfile: Dockerfile
+      args:
+        - HIVE_VERSION=4.0.1
+        - JARS_DIRECTORY=/opt/hive/lib
+        - HADOOP_AWS_JAR_VERSION=3.3.4
+        - MINIO_JAR_VERSION=8.5.17
+        - AWS_BUNDLE_JAR_VERSION=1.12.782
+        - POSTGRESQL_JAR_VERSION=42.7.5
+    image: hive-image:4.0.1
+    container_name: iceberg-hive-metastore
+    hostname: iceberg-hive-metastore
+    environment:
+      SERVICE_NAME: metastore
+      HIVE_METASTORE_USER: iceberg
+      HIVE_METASTORE_PASSWORD: icebergpassword
+      HIVE_METASTORE_DB_HOST: iceberg-postgres-hive
+      HIVE_METASTORE_DB_NAME: metastore
+      HIVE_METASTORE_DB_TYPE: postgres
+      DB_DRIVER: postgres
+      SCHEMA_COMMAND: -initSchema
+      VERBOSE_MODE: true
+    depends_on:
+      - iceberg-metastore-postgres
+    ports:
+      - "29083:9083"
+    volumes:
+      - iceberg_hive_metastore_data:/opt/hive/data
+      - "./hive/iceberg-site.xml:/opt/hive/conf/core-site.xml"
     networks:
       - dev-net
 
@@ -379,7 +427,8 @@ services:
 
   mysql:
     image: mysql:latest
-    container_name: mysql_db
+    container_name: mysql-data
+    hostname: mysql-data
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: mysql
@@ -390,6 +439,8 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql_dummy.sql:/dummy/mysql_dummy.sql
+    networks:
+      - dev-net
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -406,6 +457,8 @@ services:
       test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Hasanal123", "-Q", "SELECT 1"]
       interval: 10s
       retries: 10
+    networks:
+      - dev-net
 
 volumes:
   dvdrental-postgresql:
@@ -413,6 +466,8 @@ volumes:
   minio_data:
   hive_postgres_data:
   hive_metastore_data:
+  iceberg_hive_metastore_data:
+  iceberg_hive_postgres_data:
   mysql_data:
   mssql_data:
   
