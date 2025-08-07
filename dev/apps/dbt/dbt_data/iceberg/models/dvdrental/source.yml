@@ -1,0 +1,9 @@
+version: 2
+
+# this source will be get data from hive database
+sources:
+  - name: dvdrental_hive
+    database: minio
+    schema: dvdrental
+    tables:
+      - name: actor
